@@ -6,6 +6,7 @@
   <style>
     body {
       font-family: sans-serif;
+      font-size: 1.1rem;
       max-width: 600px;
       margin: 20px auto;
       padding: 20px;
@@ -15,19 +16,22 @@
       text-align: center;
       font-weight: bold;
       color: red;
+      font-size: 2rem;
     }
-    label, input {
+    label {
       display: block;
       margin: 10px 0;
+      font-size: 1.1rem;
     }
     input[type="number"] {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
+      font-size: 1rem;
       box-sizing: border-box;
     }
     button {
       padding: 10px 20px;
-      font-size: 1rem;
+      font-size: 1.1rem;
       cursor: pointer;
       margin-top: 10px;
     }
@@ -47,11 +51,17 @@
       margin-top: 10px;
       display: none; /* Başlangıçta gizli */
       white-space: pre-wrap;
+      font-size: 1.1rem;
+      line-height: 1.5;
     }
+    /* Sonuç kutusu stil */
     pre {
-      background-color: #f4f4f4;
-      padding: 15px;
-      border: 1px solid #ddd;
+      background-color: #f9f9f9;
+      border: 2px solid #ddd;
+      padding: 20px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      line-height: 1.5;
       white-space: pre-wrap;
       margin-top: 20px;
     }
@@ -82,6 +92,7 @@
   </style>
   <script>
     var gercekKilo = 0;
+    
     function hesaplaGercekKilo() {
       var kalSuresi = parseFloat(document.getElementById('inputC').value);
       var mf = parseFloat(document.getElementById('inputMF').value);
@@ -95,6 +106,7 @@
       document.getElementById('sonuc').innerText = output;
       document.getElementById('haslerDiv').style.display = "block";
     }
+    
     function hesaplaSpan() {
       var haslerKilo = parseFloat(document.getElementById('inputHaslerKilo').value);
       if (isNaN(haslerKilo) || haslerKilo === 0) {
@@ -106,6 +118,7 @@
       var output = existingText + "\nSpan Değeri (Gerçek Kilo / Hasler Kilo): " + span.toFixed(3);
       document.getElementById('sonuc').innerText = output;
     }
+    
     function toggleInfo() {
       var infoDiv = document.getElementById('infoText');
       if (infoDiv.style.display === "none" || infoDiv.style.display === "") {
