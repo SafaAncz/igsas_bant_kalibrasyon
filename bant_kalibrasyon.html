@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>İgsaş Bant Kalibrasyon Programı</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      position: relative;
+    }
+    h1 {
+      text-align: center;
+    }
+    label, input {
+      display: block;
+      margin: 10px 0;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    pre {
+      background-color: #f4f4f4;
+      padding: 15px;
+      border: 1px solid #ddd;
+      white-space: pre-wrap;
+      margin-top: 20px;
+    }
+    /* Sağ alt footer */
+    .footer {
+      position: fixed;
+      right: 10px;
+      bottom: 10px;
+      font-size: 0.9rem;
+      color: #888;
+    }
+    /* Sol alt logo */
+    .footer-logo {
+      position: fixed;
+      left: 10px;
+      bottom: 10px;
+      z-index: 1000;
+    }
+    .footer-logo img {
+      opacity: 0.8;
+      transition: opacity 0.3s;
+      width: 100px; /* Logonun genişliği */
+    }
+    .footer-logo img:hover {
+      opacity: 1;
+    }
+  </style>
+  <script>
+    var gercekKilo = 0;
+
+    function hesaplaGercekKilo() {
+      var kalSuresi = parseFloat(document.getElementById('inputC').value);
+      var mf = parseFloat(document.getElementById('inputMF').value);
+
+      if (isNaN(kalSuresi) || isNaN(mf)) {
+        alert("Lütfen Kalibrasyon Süresi ve MF değerini doğru biçimde giriniz.");
+        return;
+      }
+      
+      gercekKilo = (mf * kalSuresi / 60) * 1000;
+      var ton = gercekKilo / 1000;
+      
+      var output = "Gerçek Kilo: " + gercekKilo.toFixed(2) + " kg (" + ton.toFixed(2) + " ton)";
+      document.getElementById('sonuc').innerText = output;
+      document.getElementById('haslerDiv').style.display = "block";
+    }
+
+    function hesaplaSpan() {
+      var haslerKilo = parseFloat(document.getElementById('inputHaslerKilo').value);
+      if (isNaN(haslerKilo) || haslerKilo === 0) {
+        alert("Lütfen Hasler Kilo değerini doğru biçimde giriniz. (Sıfır olamaz)");
+        return;
+      }
+      
+      var span = gercekKilo / haslerKilo;
+      var existingText = document.getElementById('sonuc').innerText;
+      var output = existingText + "\nSpan Değeri (Gerçek Kilo / Hasler Kilo): " + span.toFixed(2);
+      document.getElementById('sonuc').innerText = output;
+    }
+  </script>
+</head>
+<body>
+  <h1>İgsaş Bant Kalibrasyon Programı</h1>
+  
+  <form onsubmit="hesaplaGercekKilo(); return false;">
+    <label for="inputC">Kalibrasyon Süresi (dakika) giriniz:</label>
+    <input type="number" id="inputC" step="any" required>
+    
+    <label for="inputMF">MF Değeri (Hasler ekran debi değeri, t/h) giriniz:</label>
+    <input type="number" id="inputMF" step="any" required>
+    
+    <button type="submit">Gerçek Kilo Hesapla</button>
+  </form>
+  
+  <pre id="sonuc"></pre>
+  
+  <div id="haslerDiv" style="display:none;">
+    <label for="inputHaslerKilo">Hasler Kilo giriniz (kg):</label>
+    <input type="number" id="inputHaslerKilo" step="any" required>
+    <button type="button" onclick="hesaplaSpan();">Span Hesapla</button>
+  </div>
+
+  <!-- Sol alt logo -->
+  <div class="footer-logo">
+    <img src="https://media-hosting.imagekit.io/fd807196253a4d11/IMG_4239.jpeg?Expires=1838814381&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=CRzDKtx2xfPv4BBaXhZyGg53-oL7oU2c3-OfhmOHsyvAMuZMWCjwYDI8cs0mhZ6hsrbB33A65GmOVdk6wZG0DKmVkFrotzEZjCePBcRf5z7KRz5vyEPr5AUEaLbGcEHfLWfnBxmMnDRaHduRWlDP5ni87CqUUHANKz-fs11m6o~mbwXSSbcsfTAaHo64Z9yWQt-kvBGAOAjvYTdWn00BQv4QOznaIW9XUGgSRXKsaI5gmbVNh6bGk3CxOuPwa09NFrqQK9IBu8Ln9vFu9i7ZL9QYV6UZWKQwCvQLAH0LRmO2Feldqy-xnPKVSURdUCceg1GT2gjyd6nxLUvV-eSXmg__" alt="İgsaş Logo">
+  </div>
+
+  <!-- Sağ alt footer -->
+  <div class="footer">Designed By Safa Ancaza</div>
+</body>
+</html>
