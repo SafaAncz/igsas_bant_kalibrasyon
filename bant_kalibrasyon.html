@@ -35,13 +35,20 @@
       cursor: pointer;
       margin-top: 10px;
     }
-    /* Info buton stil */
+    /* Buton stilleri */
     .info-button {
       background-color: green;
       color: white;
       border: none;
       padding: 10px 20px;
       margin-bottom: 10px;
+    }
+    .reset-button {
+      background-color: #ccc;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
     }
     /* Açıklama kutusu stil */
     .info-text {
@@ -127,6 +134,16 @@
         infoDiv.style.display = "none";
       }
     }
+    
+    function resetForm() {
+      document.getElementById('inputC').value = '';
+      document.getElementById('inputMF').value = '';
+      document.getElementById('inputHaslerKilo').value = '';
+      document.getElementById('sonuc').innerText = '';
+      document.getElementById('haslerDiv').style.display = "none";
+      document.getElementById('infoText').style.display = "none";
+      gercekKilo = 0;
+    }
   </script>
 </head>
 <body>
@@ -154,6 +171,9 @@
     
     <button type="submit">Gerçek Kilo Hesapla</button>
   </form>
+  
+  <!-- Sıfırlama Butonu -->
+  <button type="button" class="reset-button" onclick="resetForm()">Sıfırla</button>
   
   <pre id="sonuc"></pre>
   
