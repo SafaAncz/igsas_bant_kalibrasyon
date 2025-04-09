@@ -13,6 +13,8 @@
     }
     h1 {
       text-align: center;
+      font-weight: bold;
+      color: red;
     }
     label, input {
       display: block;
@@ -29,6 +31,23 @@
       cursor: pointer;
       margin-top: 10px;
     }
+    /* Info buton stil */
+    .info-button {
+      background-color: green;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-bottom: 10px;
+    }
+    /* Açıklama kutusu stil */
+    .info-text {
+      background-color: #e7f7e7;
+      border: 1px solid green;
+      padding: 15px;
+      margin-top: 10px;
+      display: none; /* Başlangıçta gizli */
+      white-space: pre-wrap;
+    }
     pre {
       background-color: #f4f4f4;
       padding: 15px;
@@ -43,6 +62,7 @@
       bottom: 10px;
       font-size: 0.9rem;
       color: #888;
+      font-weight: bold;
     }
     /* Sol alt logo */
     .footer-logo {
@@ -54,7 +74,7 @@
     .footer-logo img {
       opacity: 0.8;
       transition: opacity 0.3s;
-      width: 100px; /* Logonun genişliği */
+      width: 150px; /* Logonun genişliği büyütüldü */
     }
     .footer-logo img:hover {
       opacity: 1;
@@ -62,40 +82,55 @@
   </style>
   <script>
     var gercekKilo = 0;
-
     function hesaplaGercekKilo() {
       var kalSuresi = parseFloat(document.getElementById('inputC').value);
       var mf = parseFloat(document.getElementById('inputMF').value);
-
       if (isNaN(kalSuresi) || isNaN(mf)) {
         alert("Lütfen Kalibrasyon Süresi ve MF değerini doğru biçimde giriniz.");
         return;
       }
-      
       gercekKilo = (mf * kalSuresi / 60) * 1000;
       var ton = gercekKilo / 1000;
-      
-      var output = "Gerçek Kilo: " + gercekKilo.toFixed(2) + " kg (" + ton.toFixed(2) + " ton)";
+      var output = "Gerçek Kilo: " + gercekKilo.toFixed(3) + " kg (" + ton.toFixed(3) + " ton)";
       document.getElementById('sonuc').innerText = output;
       document.getElementById('haslerDiv').style.display = "block";
     }
-
     function hesaplaSpan() {
       var haslerKilo = parseFloat(document.getElementById('inputHaslerKilo').value);
       if (isNaN(haslerKilo) || haslerKilo === 0) {
         alert("Lütfen Hasler Kilo değerini doğru biçimde giriniz. (Sıfır olamaz)");
         return;
       }
-      
       var span = gercekKilo / haslerKilo;
       var existingText = document.getElementById('sonuc').innerText;
-      var output = existingText + "\nSpan Değeri (Gerçek Kilo / Hasler Kilo): " + span.toFixed(2);
+      var output = existingText + "\nSpan Değeri (Gerçek Kilo / Hasler Kilo): " + span.toFixed(3);
       document.getElementById('sonuc').innerText = output;
+    }
+    function toggleInfo() {
+      var infoDiv = document.getElementById('infoText');
+      if (infoDiv.style.display === "none" || infoDiv.style.display === "") {
+        infoDiv.style.display = "block";
+      } else {
+        infoDiv.style.display = "none";
+      }
     }
   </script>
 </head>
 <body>
   <h1>İgsaş Bant Kalibrasyon Programı</h1>
+  
+  <!-- Yeşil Info Butonu -->
+  <button type="button" class="info-button" onclick="toggleInfo()">Info</button>
+  
+  <!-- Info İçeriği -->
+  <div id="infoText" class="info-text">
+    1- Loadcell analog kalibrasyonu yap.<br>
+    2- Span kalibrasyonu için süre gir. (önerilen 10 dakika)<br>
+    3- Hasler üzerindeki MF (Debi Değeri t/h) olarak giriniz.<br>
+    4- Çıkan Sonuç sizin gerçek kilo değeriniz.<br>
+    5- Süre sonunda Hasler sistemi üzerinde gördüğünüz kilo değerini giriniz ve span değerine ulaşınız.<br>
+    6- Span değerini sisteme girip tekrar kalibrasyona başlayınız.
+  </div>
   
   <form onsubmit="hesaplaGercekKilo(); return false;">
     <label for="inputC">Kalibrasyon Süresi (dakika) giriniz:</label>
