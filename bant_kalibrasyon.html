@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>İgsaş Bant Kalibrasyon Programı</title>
+  <title>İgsaş Bant Kalibrasyon Programı - Yeni Versiyon</title>
   <style>
     body {
       font-family: sans-serif;
@@ -21,7 +21,6 @@
     label {
       display: block;
       margin: 10px 0;
-      font-size: 1.1rem;
     }
     input[type="number"] {
       width: 100%;
@@ -35,33 +34,26 @@
       cursor: pointer;
       margin-top: 10px;
     }
-    /* Buton stilleri */
-    .info-button {
+    .info-button, .info-button2 {
       background-color: green;
       color: white;
       border: none;
-      padding: 10px 20px;
       margin-bottom: 10px;
     }
     .reset-button {
       background-color: #ccc;
       color: #000;
       border: none;
-      padding: 10px 20px;
-      margin-top: 10px;
     }
-    /* Açıklama kutusu stil */
     .info-text {
       background-color: #e7f7e7;
       border: 1px solid green;
       padding: 15px;
-      margin-top: 10px;
-      display: none; /* Başlangıçta gizli */
+      margin: 10px 0;
+      display: none;
       white-space: pre-wrap;
-      font-size: 1.1rem;
       line-height: 1.5;
     }
-    /* Sonuç kutusu stil */
     pre {
       background-color: #f9f9f9;
       border: 2px solid #ddd;
@@ -89,108 +81,328 @@
       z-index: 1000;
     }
     .footer-logo img {
+      width: 150px;
       opacity: 0.8;
       transition: opacity 0.3s;
-      width: 150px; /* Logonun genişliği büyütüldü */
     }
     .footer-logo img:hover {
       opacity: 1;
     }
+    /* Üst bilgi butonlarını ortalamak için kapsayıcı */
+    .info-buttons-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* Hesaplama formundaki butonlar aynı satırda */
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      align-items: center;
+    }
+    /* Kronometre bölüm stil */
+    #timerContainer {
+      border-top: 2px solid #ddd;
+      padding-top: 20px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    #indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: red;
+      display: inline-block;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    /* Modal stil */
+    #mfModal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      border: 2px solid #444;
+      padding: 20px;
+      z-index: 2000;
+      display: none;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    }
+    #mfModal button {
+      margin-top: 10px;
+    }
+    #modalOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      z-index: 1500;
+    }
   </style>
   <script>
-    var gercekKilo = 0;
-    
-    function hesaplaGercekKilo() {
-      var kalSuresi = parseFloat(document.getElementById('inputC').value);
-      var mf = parseFloat(document.getElementById('inputMF').value);
-      if (isNaN(kalSuresi) || isNaN(mf)) {
-        alert("Lütfen Kalibrasyon Süresi ve MF değerini doğru biçimde giriniz.");
+    // Global değişken: hesaplanmış Total Kilo (D) değeri
+    var computedTotalWeight = 0;
+    var timerInterval;
+    var remainingSeconds = 0;
+   
+    function hesaplaDeğerler() {
+      // Kullanıcı verilerini alalım:
+      var beltSpeed = parseFloat(document.getElementById('inputA').value); // A: Bant hızı (m/s)
+      var chainWeight = parseFloat(document.getElementById('inputB').value); // B: Zincir ağırlığı (kg/m)
+      var calibrationTime = parseFloat(document.getElementById('inputC').value); // C: Kalibrasyon süresi (dakika)
+     
+      if (isNaN(beltSpeed) || isNaN(chainWeight) || isNaN(calibrationTime)) {
+        alert("Lütfen tüm değerleri doğru biçimde giriniz.");
         return;
       }
-      gercekKilo = (mf * kalSuresi / 60) * 1000;
-      var ton = gercekKilo / 1000;
-      var output = "Gerçek Kilo: " + gercekKilo.toFixed(3) + " kg (" + ton.toFixed(3) + " ton)";
+     
+      // D = A * B * C * 60 hesaplaması
+      computedTotalWeight = beltSpeed * chainWeight * calibrationTime * 60;
+     
+      var output = "Total Hesaplanan Kilo : " + computedTotalWeight.toFixed(3) + " kg";
       document.getElementById('sonuc').innerText = output;
+     
+      // D hesaplandıktan sonra H değerinin girilebilmesi için ilgili bölümü gösterelim.
       document.getElementById('haslerDiv').style.display = "block";
     }
-    
+   
     function hesaplaSpan() {
-      var haslerKilo = parseFloat(document.getElementById('inputHaslerKilo').value);
-      if (isNaN(haslerKilo) || haslerKilo === 0) {
-        alert("Lütfen Hasler Kilo değerini doğru biçimde giriniz. (Sıfır olamaz)");
+      var haslerTotal = parseFloat(document.getElementById('inputH').value);
+      if (isNaN(haslerTotal) || haslerTotal === 0) {
+        alert("Lütfen Hasler Total Kilo değerini doğru biçimde giriniz. (Sıfır olamaz)");
         return;
       }
-      var span = gercekKilo / haslerKilo;
-      var existingText = document.getElementById('sonuc').innerText;
-      var output = existingText + "\nSpan Değeri (Gerçek Kilo / Hasler Kilo): " + span.toFixed(3);
+      var span = computedTotalWeight / haslerTotal;
+     
+      // Sonuca Span bilgisini ekleyelim.
+      var output = document.getElementById('sonuc').innerText;
+      output += "\nSpan : " + span.toFixed(3);
       document.getElementById('sonuc').innerText = output;
     }
-    
-    function toggleInfo() {
-      var infoDiv = document.getElementById('infoText');
+   
+    function openMFModal() {
+      var chainWeight = parseFloat(document.getElementById('inputB').value);
+      var calibrationTime = parseFloat(document.getElementById('inputC').value);
+      if (isNaN(chainWeight) || isNaN(calibrationTime)) {
+         alert("Lütfen B ve C değerlerini giriniz.");
+         return;
+      }
+      var mfValue = chainWeight * calibrationTime * 3.6;
+      document.getElementById('mfModalContent').innerText = "MF: " + mfValue.toFixed(3);
+      document.getElementById('modalOverlay').style.display = "block";
+      document.getElementById('mfModal').style.display = "block";
+    }
+   
+    function closeMFModal() {
+      document.getElementById('mfModal').style.display = "none";
+      document.getElementById('modalOverlay').style.display = "none";
+    }
+   
+    function resetForm() {
+      document.getElementById('inputA').value = '';
+      document.getElementById('inputB').value = '';
+      document.getElementById('inputC').value = '';
+      document.getElementById('inputH').value = '';
+      document.getElementById('sonuc').innerText = '';
+      // Bilgi kutularını da gizleyelim:
+      document.getElementById('mekanikKontrolText').style.display = "none";
+      document.getElementById('bantKalibrasyonText').style.display = "none";
+      // H değerini girme bölümünü de gizleyelim.
+      document.getElementById('haslerDiv').style.display = "none";
+     
+      // Global değişkeni sıfırlayalım.
+      computedTotalWeight = 0;
+     
+      // Kronometreyi sıfırla
+      resetTimer();
+     
+      // Kapatılabilecek modal varsa kapat
+      closeMFModal();
+    }
+   
+    function toggleInfo(id) {
+      var infoDiv = document.getElementById(id);
       if (infoDiv.style.display === "none" || infoDiv.style.display === "") {
         infoDiv.style.display = "block";
       } else {
         infoDiv.style.display = "none";
       }
     }
-    
-    function resetForm() {
-      document.getElementById('inputC').value = '';
-      document.getElementById('inputMF').value = '';
-      document.getElementById('inputHaslerKilo').value = '';
-      document.getElementById('sonuc').innerText = '';
-      document.getElementById('haslerDiv').style.display = "none";
-      document.getElementById('infoText').style.display = "none";
-      gercekKilo = 0;
+   
+    // Kronometre fonksiyonları
+    function updateTimer() {
+      var timerDisplay = document.getElementById('timerDisplay');
+      var indicator = document.getElementById('indicator');
+      var min = Math.floor(remainingSeconds / 60);
+      var sec = remainingSeconds % 60;
+      timerDisplay.innerText = min + " dk " + sec + " sn";
+      if(remainingSeconds <= 0) {
+         clearInterval(timerInterval);
+         timerInterval = null;
+         timerDisplay.innerText = "Süre tamamlandı!";
+         indicator.style.backgroundColor = "green";
+      } else {
+         remainingSeconds--;
+      }
+    }
+   
+    function startTimer() {
+      var minutes = parseFloat(document.getElementById('inputTimer').value);
+      if (isNaN(minutes) || minutes <= 0) {
+         alert("Lütfen geçerli bir dakika değeri giriniz.");
+         return;
+      }
+      remainingSeconds = Math.floor(minutes * 60);
+      clearInterval(timerInterval);
+      timerInterval = setInterval(updateTimer, 1000);
+      document.getElementById('indicator').style.backgroundColor = "red";
+    }
+   
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+   
+    function resumeTimer() {
+      if (remainingSeconds > 0 && !timerInterval) {
+         timerInterval = setInterval(updateTimer, 1000);
+      }
+    }
+   
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      remainingSeconds = 0;
+      document.getElementById('timerDisplay').innerText = "";
+      document.getElementById('inputTimer').value = "";
+      document.getElementById('indicator').style.backgroundColor = "red";
     }
   </script>
 </head>
 <body>
   <h1>İgsaş Bant Kalibrasyon Programı</h1>
-  
-  <!-- Yeşil Info Butonu -->
-  <button type="button" class="info-button" onclick="toggleInfo()">Info</button>
-  
-  <!-- Info İçeriği -->
-  <div id="infoText" class="info-text">
-    1- Loadcell analog kalibrasyonu yapılmalı.<br>
-    2- Yeni zincirle kalibrasyon yaparken mod=Volumetrik olarak seçilmeli!<br>
-    3- Kalibrasyon için süre giriniz. (Önerilen 10 dakika)<br>
-    4- Hasler üzerindeki MF (Debi Değeri t/h) değerini giriniz.<br>
-    5- Çıkan sonuç sizin GERÇEK KİLO (Hesaplanan Total) değeriniz.<br>
-    6- Süre bittikten sonra Hasler ekranında yazan değeri HASLER KİLO (Hasler Total) kısmına giriniz ve span değerine ulaşınız.<br>
-    7- Yeni span değerini sisteme girip kalibrasyonu tekrarlayınız.<br>
-    8- Kolay gelsin :)
+ 
+  <!-- Üst Bilgi Butonlarını Ortalayan Kapsayıcı -->
+  <div class="info-buttons-container">
+    <button type="button" class="info-button" onclick="toggleInfo('mekanikKontrolText')">Mekanik Kontrol</button>
+    <button type="button" class="info-button2" onclick="toggleInfo('bantKalibrasyonText')">Bant Kalibrasyonu</button>
   </div>
-  
-  <form onsubmit="hesaplaGercekKilo(); return false;">
-    <label for="inputC">Kalibrasyon Süresi (dakika) giriniz:</label>
+ 
+  <!-- Bilgi Metinleri -->
+  <div id="mekanikKontrolText" class="info-text">
+1-Tartım ruloları (ayar rulosu, önceki ve sonraki rulo) diğer rulolardan 1mm yüksek ve 3 rulo aynı düzlemde olacak şekilde ayarlanmalıdır.
+ 
+2-Bıçaklar (lamalar) gözle kontrol edilmelidir. Kırık çatlak olmamalı ve birbirine temas etmemelidir.
+ 
+3-Gerekli kontroller ve ayar yapıldıktan sonra kalibrasyona geçilmelidir.
+ 
+&gt;KOLAY GELSİN&lt;
+  </div>
+ 
+  <div id="bantKalibrasyonText" class="info-text">
+Zero Ayarı:
+1-MENU-&gt;SCALE-&gt;ANALOG LD. CL. Sekmesinde
+   CAL WGT (Kalibrasyon Ağırlığı) 5kg,
+   CAL. LEV. RAT. (Ağırlık Çarpanı) 1.5 olarak girilmelidir.
+ 
+2-Bant boş iken NULL PT. (Zero) ayarı yapılır.
+ 
+3-Sonra kalibrasyon ağırlıkları (5kg) tartım rulosu alt kollara asılarak CALIBRATION (Span) ayarı yapılır.
+ 
+4-Analog Load Cell kalibrasyonu tamamlandığında;
+   MENU-&gt;NEW MATERIAL-&gt;STATIC TARE seçilerek banta zero ayarı yapılır.
+ 
+5-Zero ayarından sonra;
+   MENU-&gt;SCALE-&gt;MAIN DECK-&gt;NET WEIGHT kısmı açılır. Loadcell kalibrasyon ağırlıkları tekrar kollara asılarak burada 7,5 kg görülmelidir. (5kg x 1.5)
+   (Bu değer görünene kadar yukarıdaki işlemlere devam edilir. Sonuç alınamazsa Loadcell kontrolü (mV) yapılır.)
+ 
+6-Bu işlemler tamamlandığında bant otomatiğe alınır.
+   SETPOINT değeri max set pointin yarısı kadar girilir.
+   (ÖRN: CV106 max set point 20 t/h ise, set point 10 t/h girilir)
+!!VOL/GRAV seçeneği GRAV seçilmelidir!!
+ 
+MENU-&gt;NEW MATERIAL-&gt;BELT TARE seçilerek "Belt Tare Ok" ekranda görünene kadar beklenir.
+(MF hataları varsa, bant devreden çıkarsa set değeri arttırılıp/azaltılarak tekrar denenir)
+ 
+Ağırlık Kalibrasyonu:
+1-Rulo Ağırlık: 34,3 kg.  Metreye düşen ağırlık: 27,8 kg.
+ 
+2-Zero ayarı tamamlandıktan sonra yeni yapılan Rulo Ağırlık // zincir banta koyulur.
+ 
+3-Bant otomatiğe alınır.
+!!VOL/GRAV seçeneği VOL olmalıdır!!
+ 
+4-SETPOINT değeri max set pointin yarısı kadar girilir.
+   (ör: CV117 max set point: 20 t/h ise, 10 t/h girilir.)
+ 
+5-Hasler ekranında TOTAL sıfırlanır ve bant otomatik devreye alınır.
+ 
+6-Çalışma esnasında Hasler ekranındaki MF değeri takip edilerek ortalaması alınır.
+ 
+7-Min. 10 dk takip sonrası bant durdurulur.
+ 
+&gt;KOLAY GELSİN&lt;
+  </div>
+ 
+  <!-- Hesaplama Formu -->
+  <form onsubmit="hesaplaDeğerler(); return false;">
+    <label for="inputA">A=Hasler sistemi üzerindeki bant hızını giriniz (m/s):</label>
+    <input type="number" id="inputA" step="any" required>
+   
+    <label for="inputB">B=Zincir ağırlığınızı giriniz (İgsaş Zincir = 24.8 kg/m):</label>
+    <input type="number" id="inputB" step="any" required>
+   
+    <label for="inputC">C=Kalibrasyon süresini giriniz (dakika):</label>
     <input type="number" id="inputC" step="any" required>
-    
-    <label for="inputMF">MF Değeri (Hasler ekran debi değeri, t/h) giriniz:</label>
-    <input type="number" id="inputMF" step="any" required>
-    
-    <button type="submit">Gerçek Kilo Hesapla</button>
+   
+    <div class="button-row">
+      <button type="submit">Hesapla</button>
+      <button type="button" onclick="openMFModal()">MF Hesapla</button>
+    </div>
   </form>
-  
-  <!-- Sıfırlama Butonu -->
-  <button type="button" class="reset-button" onclick="resetForm()">Sıfırla</button>
-  
-  <pre id="sonuc"></pre>
-  
+ 
+  <!-- H Değerini Girme Bölümü (ilk hesaplamadan sonra gösterilecek) -->
   <div id="haslerDiv" style="display:none;">
-    <label for="inputHaslerKilo">Hasler Kilo giriniz (kg):</label>
-    <input type="number" id="inputHaslerKilo" step="any" required>
-    <button type="button" onclick="hesaplaSpan();">Span Hesapla</button>
+    <label for="inputH">Hasler Total Kilo giriniz:</label>
+    <input type="number" id="inputH" step="any" required>
+    <button type="button" onclick="hesaplaSpan()">Span Hesapla</button>
   </div>
-
-  <!-- Sol alt logo -->
-  <div class="footer-logo">
-    <img src="https://media-hosting.imagekit.io/fd807196253a4d11/IMG_4239.jpeg?Expires=1838814381&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=CRzDKtx2xfPv4BBaXhZyGg53-oL7oU2c3-OfhmOHsyvAMuZMWCjwYDI8cs0mhZ6hsrbB33A65GmOVdk6wZG0DKmVkFrotzEZjCePBcRf5z7KRz5vyEPr5AUEaLbGcEHfLWfnBxmMnDRaHduRWlDP5ni87CqUUHANKz-fs11m6o~mbwXSSbcsfTAaHo64Z9yWQt-kvBGAOAjvYTdWn00BQv4QOznaIW9XUGgSRXKsaI5gmbVNh6bGk3CxOuPwa09NFrqQK9IBu8Ln9vFu9i7ZL9QYV6UZWKQwCvQLAH0LRmO2Feldqy-xnPKVSURdUCceg1GT2gjyd6nxLUvV-eSXmg__" alt="İgsaş Logo">
+ 
+  <!-- Sıfırla Butonu -->
+  <button type="button" class="reset-button" onclick="resetForm()">Sıfırla</button>
+ 
+  <!-- Sonuç Görüntüleme Alanı -->
+  <pre id="sonuc"></pre>
+ 
+  <!-- Kronometre Bölümü -->
+  <div id="timerContainer">
+    <label for="inputTimer">Kronometre için süre (dakika):</label>
+    <input type="number" id="inputTimer" step="any" required>
+    <button type="button" onclick="startTimer()">Kronometre Başlat</button>
+    <button type="button" onclick="pauseTimer()">Durdur</button>
+    <button type="button" onclick="resumeTimer()">Devam Ettir</button>
+    <button type="button" onclick="resetTimer()">Sıfırla</button>
+    <div id="timerDisplay" style="margin-top:10px; font-size:1.2rem;"></div>
+    <div id="indicator"></div>
   </div>
-
-  <!-- Sağ alt footer -->
+ 
+  <!-- MF Modal Penceresi ve Kaplama Alanı -->
+  <div id="modalOverlay"></div>
+  <div id="mfModal">
+    <div id="mfModalContent"></div>
+    <button type="button" onclick="closeMFModal()">Kapat</button>
+  </div>
+ 
+  <!-- Sağ Alt Footer -->
   <div class="footer">Designed By Safa Ancaza</div>
+ 
+  <!-- Sol Alt Logo -->
+  <div class="footer-logo">
+    <img src="https://media-hosting.imagekit.io/fd807196253a4d11/IMG_4239.jpeg?Expires=1838814381&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=CRzDKtx2xfPv4BBaXhZyGg53-oL7oU2c3-OfhmOHsyvAMuZMWCjwYDI8cs0mhZ6hsrbB33A65GmOVdk6wZG0DKmVkFrotzEZjCePBcRf5z7KRz5vyEPr5AUEaLbGcEHfLWfnBxmMnDRaHduRWlDP5ni87CqUUHANKz-fs11m6o~mbwXSSbcsfTAaHo64Z9yWQt-kvBGAOAjvYTdWn00BQv4QOznaIW9XUGgSRXKsaI5gmbVNh6bGk3CxOuPwa09NFrqQK9IBu8Ln9vFu9i7ZL9QYV6UZWKQwCvQLAH0LRmO2Feldqy-xnPKVSURdUCceg1GT2gjyd6nxLUvV-eSXmg__" alt="Firma Logosu">
+  </div>
 </body>
 </html>
