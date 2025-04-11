@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>İgsaş Bant Kalibrasyon Programı - Yeni Versiyon</title>
+  <title id="pageTitle">İgsaş Bant Kalibrasyon Programı - Yeni Versiyon</title>
   <style>
     body {
       font-family: sans-serif;
@@ -142,15 +142,34 @@
       display: none;
       z-index: 1500;
     }
+    /* Dil seçim butonlarının konumu */
+    #languageSelector {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+    }
+    #languageSelector img {
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      margin-left: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      transition: transform 0.3s;
+    }
+    #languageSelector img:hover {
+      transform: scale(1.1);
+    }
   </style>
   <script>
+    // Mevcut hesaplamalar, modal, kronometre ve diğer işlevler...
+
     // Global değişken: hesaplanmış Total Kilo (D) değeri
     var computedTotalWeight = 0;
     var timerInterval;
     var remainingSeconds = 0;
    
     function hesaplaDeğerler() {
-      // Kullanıcı verilerini alalım:
       var beltSpeed = parseFloat(document.getElementById('inputA').value); // A: Bant hızı (m/s)
       var chainWeight = parseFloat(document.getElementById('inputB').value); // B: Zincir ağırlığı (kg/m)
       var calibrationTime = parseFloat(document.getElementById('inputC').value); // C: Kalibrasyon süresi (dakika)
@@ -160,13 +179,11 @@
         return;
       }
      
-      // D = A * B * C * 60 hesaplaması
       computedTotalWeight = beltSpeed * chainWeight * calibrationTime * 60;
      
       var output = "Total Hesaplanan Kilo : " + computedTotalWeight.toFixed(3) + " kg";
       document.getElementById('sonuc').innerText = output;
      
-      // D hesaplandıktan sonra H değerinin girilebilmesi için ilgili bölümü gösterelim.
       document.getElementById('haslerDiv').style.display = "block";
     }
    
@@ -178,7 +195,6 @@
       }
       var span = computedTotalWeight / haslerTotal;
      
-      // Sonuca Span bilgisini ekleyelim.
       var output = document.getElementById('sonuc').innerText;
       output += "\nSpan : " + span.toFixed(3);
       document.getElementById('sonuc').innerText = output;
@@ -208,19 +224,11 @@
       document.getElementById('inputC').value = '';
       document.getElementById('inputH').value = '';
       document.getElementById('sonuc').innerText = '';
-      // Bilgi kutularını da gizleyelim:
       document.getElementById('mekanikKontrolText').style.display = "none";
       document.getElementById('bantKalibrasyonText').style.display = "none";
-      // H değerini girme bölümünü de gizleyelim.
       document.getElementById('haslerDiv').style.display = "none";
-     
-      // Global değişkeni sıfırlayalım.
       computedTotalWeight = 0;
-     
-      // Kronometreyi sıfırla
       resetTimer();
-     
-      // Kapatılabilecek modal varsa kapat
       closeMFModal();
     }
    
@@ -284,12 +292,18 @@
   </script>
 </head>
 <body>
-  <h1>İgsaş Bant Kalibrasyon Programı</h1>
+  <!-- Dil seçici: Sağ üst köşede iki bayrak -->
+  <div id="languageSelector">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg" alt="Türkçe" title="Türkçe" onclick="setLanguage('tr')">
+    <img src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg" alt="English" title="English" onclick="setLanguage('en')">
+  </div>
+  
+  <h1 id="mainTitle">İgsaş Bant Kalibrasyon Programı</h1>
  
   <!-- Üst Bilgi Butonlarını Ortalayan Kapsayıcı -->
   <div class="info-buttons-container">
-    <button type="button" class="info-button" onclick="toggleInfo('mekanikKontrolText')">Mekanik Kontrol</button>
-    <button type="button" class="info-button2" onclick="toggleInfo('bantKalibrasyonText')">Bant Kalibrasyonu</button>
+    <button type="button" class="info-button" id="btnMekanik" onclick="toggleInfo('mekanikKontrolText')">Mekanik Kontrol</button>
+    <button type="button" class="info-button2" id="btnBant" onclick="toggleInfo('bantKalibrasyonText')">Bant Kalibrasyonu</button>
   </div>
  
   <!-- Bilgi Metinleri -->
@@ -300,7 +314,7 @@
  
 3-Gerekli kontroller ve ayar yapıldıktan sonra kalibrasyona geçilmelidir.
  
-&gt;KOLAY GELSİN&lt;
+&gt;KOLAY GELSIN&lt;
   </div>
  
   <div id="bantKalibrasyonText" class="info-text">
@@ -345,47 +359,47 @@ Ağırlık Kalibrasyonu:
  
 7-Min. 10 dk takip sonrası bant durdurulur.
  
-&gt;KOLAY GELSİN&lt;
+&gt;KOLAY GELSIN&lt;
   </div>
  
   <!-- Hesaplama Formu -->
   <form onsubmit="hesaplaDeğerler(); return false;">
-    <label for="inputA">A=Hasler sistemi üzerindeki bant hızını giriniz (m/s):</label>
+    <label for="inputA" id="labelA">A=Hasler sistemi üzerindeki bant hızını giriniz (m/s):</label>
     <input type="number" id="inputA" step="any" required>
    
-    <label for="inputB">B=Zincir ağırlığınızı giriniz (İgsaş Zincir = 24.8 kg/m):</label>
+    <label for="inputB" id="labelB">B=Zincir ağırlığınızı giriniz (İgsaş Zincir = 24.8 kg/m):</label>
     <input type="number" id="inputB" step="any" required>
    
-    <label for="inputC">C=Kalibrasyon süresini giriniz (dakika):</label>
+    <label for="inputC" id="labelC">C=Kalibrasyon süresini giriniz (dakika):</label>
     <input type="number" id="inputC" step="any" required>
    
     <div class="button-row">
-      <button type="submit">Hesapla</button>
-      <button type="button" onclick="openMFModal()">MF Hesapla</button>
+      <button type="submit" id="btnCalculate">Hesapla</button>
+      <button type="button" id="btnCalculateMF" onclick="openMFModal()">MF Hesapla</button>
     </div>
   </form>
  
-  <!-- H Değerini Girme Bölümü (ilk hesaplamadan sonra gösterilecek) -->
+  <!-- H Değerini Girme Bölümü -->
   <div id="haslerDiv" style="display:none;">
-    <label for="inputH">Hasler Total Kilo giriniz:</label>
+    <label for="inputH" id="haslerLabel">Hasler Total Kilo giriniz:</label>
     <input type="number" id="inputH" step="any" required>
-    <button type="button" onclick="hesaplaSpan()">Span Hesapla</button>
+    <button type="button" id="btnCalculateSpan" onclick="hesaplaSpan()">Span Hesapla</button>
   </div>
  
   <!-- Sıfırla Butonu -->
-  <button type="button" class="reset-button" onclick="resetForm()">Sıfırla</button>
+  <button type="button" class="reset-button" id="btnReset" onclick="resetForm()">Sıfırla</button>
  
   <!-- Sonuç Görüntüleme Alanı -->
   <pre id="sonuc"></pre>
  
   <!-- Kronometre Bölümü -->
   <div id="timerContainer">
-    <label for="inputTimer">Kronometre için süre (dakika):</label>
+    <label for="inputTimer" id="labelTimer">Kronometre için süre (dakika):</label>
     <input type="number" id="inputTimer" step="any" required>
-    <button type="button" onclick="startTimer()">Kronometre Başlat</button>
-    <button type="button" onclick="pauseTimer()">Durdur</button>
-    <button type="button" onclick="resumeTimer()">Devam Ettir</button>
-    <button type="button" onclick="resetTimer()">Sıfırla</button>
+    <button type="button" id="btnStartTimer" onclick="startTimer()">Kronometre Başlat</button>
+    <button type="button" id="btnStopTimer" onclick="pauseTimer()">Durdur</button>
+    <button type="button" id="btnResumeTimer" onclick="resumeTimer()">Devam Ettir</button>
+    <button type="button" id="btnTimerReset" onclick="resetTimer()">Sıfırla</button>
     <div id="timerDisplay" style="margin-top:10px; font-size:1.2rem;"></div>
     <div id="indicator"></div>
   </div>
@@ -394,7 +408,7 @@ Ağırlık Kalibrasyonu:
   <div id="modalOverlay"></div>
   <div id="mfModal">
     <div id="mfModalContent"></div>
-    <button type="button" onclick="closeMFModal()">Kapat</button>
+    <button type="button" id="btnModalClose" onclick="closeMFModal()">Kapat</button>
   </div>
  
   <!-- Sağ Alt Footer -->
@@ -404,5 +418,107 @@ Ağırlık Kalibrasyonu:
   <div class="footer-logo">
     <img src="https://media-hosting.imagekit.io/fd807196253a4d11/IMG_4239.jpeg?Expires=1838814381&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=CRzDKtx2xfPv4BBaXhZyGg53-oL7oU2c3-OfhmOHsyvAMuZMWCjwYDI8cs0mhZ6hsrbB33A65GmOVdk6wZG0DKmVkFrotzEZjCePBcRf5z7KRz5vyEPr5AUEaLbGcEHfLWfnBxmMnDRaHduRWlDP5ni87CqUUHANKz-fs11m6o~mbwXSSbcsfTAaHo64Z9yWQt-kvBGAOAjvYTdWn00BQv4QOznaIW9XUGgSRXKsaI5gmbVNh6bGk3CxOuPwa09NFrqQK9IBu8Ln9vFu9i7ZL9QYV6UZWKQwCvQLAH0LRmO2Feldqy-xnPKVSURdUCceg1GT2gjyd6nxLUvV-eSXmg__" alt="Firma Logosu">
   </div>
+  
+  <!-- Dil Değiştirme İşlevselliği için JavaScript -->
+  <script>
+    // Çeviri sözlüğü
+    var translations = {
+      "tr": {
+        "pageTitle": "İgsaş Bant Kalibrasyon Programı - Yeni Versiyon",
+        "mainTitle": "İgsaş Bant Kalibrasyon Programı",
+        "btnMekanik": "Mekanik Kontrol",
+        "btnBant": "Bant Kalibrasyonu",
+        "mekanikKontrolText": "1-Tartım ruloları (ayar rulosu, önceki ve sonraki rulo) diğer rulolardan 1mm yüksek ve 3 rulo aynı düzlemde olacak şekilde ayarlanmalıdır.\n\n2-Bıçaklar (lamalar) gözle kontrol edilmelidir. Kırık çatlak olmamalı ve birbirine temas etmemelidir.\n\n3-Gerekli kontroller ve ayar yapıldıktan sonra kalibrasyona geçilmelidir.\n\n>KOLAY GELSIN<",
+        "bantKalibrasyonText": "Zero Ayarı:\n1-MENU->SCALE->ANALOG LD. CL. Sekmesinde CAL WGT (Kalibrasyon Ağırlığı) 5kg, CAL. LEV. RAT. (Ağırlık Çarpanı) 1.5 olarak girilmelidir.\n\n2-Bant boş iken NULL PT. (Zero) ayarı yapılır.\n\n3-Sonra kalibrasyon ağırlıkları (5kg) tartım rulosu alt kollara asılarak CALIBRATION (Span) ayarı yapılır.\n\n4-Analog Load Cell kalibrasyonu tamamlandığında; MENU->NEW MATERIAL->STATIC TARE seçilerek banta zero ayarı yapılır.\n\n5-Zero ayarından sonra; MENU->SCALE->MAIN DECK->NET WEIGHT kısmı açılır. Loadcell kalibrasyon ağırlıkları tekrar kollara asılarak burada 7,5 kg görülmelidir. (5kg x 1.5) (Bu değer görünene kadar yukarıdaki işlemlere devam edilir. Sonuç alınamazsa Loadcell kontrolü (mV) yapılır.)\n\n6-Bu işlemler tamamlandığında bant otomatiğe alınır. SETPOINT değeri max set pointin yarısı kadar girilir. (ÖRN: CV106 max set point 20 t/h ise, set point 10 t/h girilir)\n!!VOL/GRAV seçeneği GRAV olmalıdır!!\n\nMENU->NEW MATERIAL->BELT TARE seçilerek \"Belt Tare Ok\" ekranda görünene kadar beklenir. (MF hataları varsa, bant devreden çıkarsa set değeri arttırılıp/azaltılarak tekrar denenir)\n\nAğırlık Kalibrasyonu:\n1-Rulo Ağırlık: 34,3 kg.  Metreye düşen ağırlık: 27,8 kg.\n\n2-Zero ayarı tamamlandıktan sonra yeni yapılan Rulo Ağırlık // zincir banta koyulur.\n\n3-Bant otomatiğe alınır. !!VOL/GRAV seçeneği VOL olmalıdır!!\n\n4-SETPOINT değeri max set pointin yarısı kadar girilir. (ör: CV117 max set point: 20 t/h ise, 10 t/h girilir.)\n\n5-Hasler ekranında TOTAL sıfırlanır ve bant otomatik devreye alınır.\n\n6-Çalışma esnasında Hasler ekranındaki MF değeri takip edilerek ortalaması alınır.\n\n7-Min. 10 dk takip sonrası bant durdurulur.\n\n>KOLAY GELSIN<",
+        "labelA": "A=Hasler sistemi üzerindeki bant hızını giriniz (m/s):",
+        "labelB": "B=Zincir ağırlığınızı giriniz (İgsaş Zincir = 24.8 kg/m):",
+        "labelC": "C=Kalibrasyon süresini giriniz (dakika):",
+        "calculate": "Hesapla",
+        "calculateMF": "MF Hesapla",
+        "haslerLabel": "Hasler Total Kilo giriniz:",
+        "calculateSpan": "Span Hesapla",
+        "reset": "Sıfırla",
+        "labelTimer": "Kronometre için süre (dakika):",
+        "startTimer": "Kronometre Başlat",
+        "stopTimer": "Durdur",
+        "resume": "Devam Ettir",
+        "modalClose": "Kapat"
+      },
+      "en": {
+        "pageTitle": "İgsaş Belt Calibration Program - New Version",
+        "mainTitle": "İgsaş Belt Calibration Program",
+        "btnMekanik": "Mechanical Control",
+        "btnBant": "Belt Calibration",
+        "mekanikKontrolText": "1- The weighing rollers (set roller, previous and next roller) should be adjusted so that one is 1mm higher than the others and three rollers are in the same plane.\n\n2- The blades (lamellas) should be visually inspected. They must not be cracked or broken, and should not touch each other.\n\n3- After performing the necessary checks and adjustments, proceed to calibration.\n\n> GOOD LUCK <",
+        "bantKalibrasyonText": "Zero Setting:\n1- In MENU->SCALE->ANALOG LD. CL. tab, set CAL WGT (Calibration Weight) to 5kg and CAL. LEV. RAT. (Weight Multiplier) to 1.5.\n\n2- When the belt is empty, perform a NULL PT. (Zero) adjustment.\n\n3- Then, hang the calibration weights (5kg) on the weighing roller arms for the CALIBRATION (Span) adjustment.\n\n4- Once the Analog Load Cell calibration is complete, go to MENU->NEW MATERIAL->STATIC TARE to set the belt zero.\n\n5- After zero setting, open MENU->SCALE->MAIN DECK->NET WEIGHT. Hang the load cell calibration weights on the arms again; it should read 7.5 kg (5kg x 1.5). Continue the above procedures until the correct value is displayed. If not, check the load cell (mV).\n\n6- After these procedures, the belt is automated. Enter the SETPOINT as half of the maximum set point (e.g., if CV106 max set point is 20 t/h, enter 10 t/h).\n!! The VOL/GRAV option should be set to GRAV !!\n\nThen, go to MENU->NEW MATERIAL->BELT TARE and wait until 'Belt Tare Ok' appears on screen. (If there are MF errors, remove the belt from operation and adjust the set value up or down and try again.)\n\nWeight Calibration:\n1- Roll Weight: 34.3 kg. Weight per Meter: 27.8 kg.\n\n2- After zero setting is complete, place the newly calculated Roll Weight // chain on the belt.\n\n3- Automate the belt. (!! The VOL/GRAV option should be set to VOL !!)\n\n4- Enter the SETPOINT as half of the maximum set point (e.g., if CV117 max set point is 20 t/h, enter 10 t/h).\n\n5- Reset the TOTAL on the Hasler screen and start the belt automatically.\n\n6- During operation, monitor the MF value on the Hasler screen and take its average.\n\n7- After monitoring for at least 10 minutes, stop the belt.\n\n> GOOD LUCK <",
+        "labelA": "A=Enter belt speed on Hasler system (m/s):",
+        "labelB": "B=Enter chain weight (İgsaş Chain = 24.8 kg/m):",
+        "labelC": "C=Enter calibration time (minutes):",
+        "calculate": "Calculate",
+        "calculateMF": "Calculate MF",
+        "haslerLabel": "Enter Hasler Total Weight:",
+        "calculateSpan": "Calculate Span",
+        "reset": "Reset",
+        "labelTimer": "Timer duration (minutes):",
+        "startTimer": "Start Timer",
+        "stopTimer": "Stop",
+        "resume": "Resume",
+        "modalClose": "Close"
+      }
+    };
+
+    // Varsayılan dil: Türkçe
+    var currentLang = "tr";
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      var trans = translations[lang];
+
+      // Başlık (title) ve sayfa dili
+      document.title = trans.pageTitle;
+      document.getElementById("pageTitle").innerText = trans.pageTitle;
+      document.documentElement.lang = lang;
+
+      // Ana başlık
+      document.getElementById("mainTitle").innerText = trans.mainTitle;
+
+      // Bilgi butonları
+      document.getElementById("btnMekanik").innerText = trans.btnMekanik;
+      document.getElementById("btnBant").innerText = trans.btnBant;
+
+      // Bilgi metinleri
+      document.getElementById("mekanikKontrolText").innerText = trans.mekanikKontrolText;
+      document.getElementById("bantKalibrasyonText").innerText = trans.bantKalibrasyonText;
+
+      // Form etiketleri
+      document.getElementById("labelA").innerText = trans.labelA;
+      document.getElementById("labelB").innerText = trans.labelB;
+      document.getElementById("labelC").innerText = trans.labelC;
+
+      // Buton metinleri
+      document.getElementById("btnCalculate").innerText = trans.calculate;
+      document.getElementById("btnCalculateMF").innerText = trans.calculateMF;
+
+      // Hasler kısmı
+      document.getElementById("haslerLabel").innerText = trans.haslerLabel;
+      document.getElementById("btnCalculateSpan").innerText = trans.calculateSpan;
+      document.getElementById("btnReset").innerText = trans.reset;
+
+      // Kronometre kısmı
+      document.getElementById("labelTimer").innerText = trans.labelTimer;
+      document.getElementById("btnStartTimer").innerText = trans.startTimer;
+      document.getElementById("btnStopTimer").innerText = trans.stopTimer;
+      document.getElementById("btnResumeTimer").innerText = trans.resume;
+      document.getElementById("btnTimerReset").innerText = trans.reset;
+
+      // Modal butonu
+      document.getElementById("btnModalClose").innerText = trans.modalClose;
+    }
+
+    // Sayfa yüklendiğinde varsayılan dili ayarla
+    window.onload = function() {
+      setLanguage(currentLang);
+    };
+  </script>
 </body>
 </html>
