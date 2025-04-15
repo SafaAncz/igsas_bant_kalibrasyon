@@ -160,6 +160,16 @@
     #languageSelector img:hover {
       transform: scale(1.1);
     }
+    /* Pop-up mesajı stili */
+    .popup-message {
+      background-color: #f9edbe;
+      border: 1px solid #f0c36d;
+      padding: 10px;
+      margin-top: 10px;
+      text-align: center;
+      font-size: 1rem;
+      border-radius: 4px;
+    }
   </style>
   <script>
     // Mevcut hesaplamalar, modal, kronometre ve diğer işlevler...
@@ -181,7 +191,8 @@
      
       computedTotalWeight = beltSpeed * chainWeight * calibrationTime * 60;
      
-      var output = "Total Hesaplanan Kilo : " + computedTotalWeight.toFixed(3) + " kg";
+      // Burada "Total Hesaplanan Kilo" ifadesi çeviri sözlüğünden alınıyor.
+      var output = translations[currentLang].totalCalculatedWeight + " : " + computedTotalWeight.toFixed(3) + " kg";
       document.getElementById('sonuc').innerText = output;
      
       document.getElementById('haslerDiv').style.display = "block";
@@ -198,6 +209,10 @@
       var output = document.getElementById('sonuc').innerText;
       output += "\nSpan : " + span.toFixed(3);
       document.getElementById('sonuc').innerText = output;
+      
+      // Hesaplama yapıldıktan sonra pop-up mesajını göster
+      var popup = document.getElementById('spanPopup');
+      popup.style.display = "block";
     }
    
     function openMFModal() {
@@ -227,6 +242,8 @@
       document.getElementById('mekanikKontrolText').style.display = "none";
       document.getElementById('bantKalibrasyonText').style.display = "none";
       document.getElementById('haslerDiv').style.display = "none";
+      // Pop-up mesajını gizle
+      document.getElementById('spanPopup').style.display = "none";
       computedTotalWeight = 0;
       resetTimer();
       closeMFModal();
@@ -337,7 +354,7 @@ Zero Ayarı:
 6-Bu işlemler tamamlandığında bant otomatiğe alınır.
    SETPOINT değeri max set pointin yarısı kadar girilir.
    (ÖRN: CV106 max set point 20 t/h ise, set point 10 t/h girilir)
-!!VOL/GRAV seçeneği GRAV seçilmelidir!!
+!!VOL/GRAV seçeneği GRAV olmalıdır!!
  
 MENU-&gt;NEW MATERIAL-&gt;BELT TARE seçilerek "Belt Tare Ok" ekranda görünene kadar beklenir.
 (MF hataları varsa, bant devreden çıkarsa set değeri arttırılıp/azaltılarak tekrar denenir)
@@ -384,6 +401,11 @@ Ağırlık Kalibrasyonu:
     <label for="inputH" id="haslerLabel">Hasler Total Kilo giriniz:</label>
     <input type="number" id="inputH" step="any" required>
     <button type="button" id="btnCalculateSpan" onclick="hesaplaSpan()">Span Hesapla</button>
+    
+    <!-- Yeni pop-up mesajı için eklenen bölüm -->
+    <div id="spanPopup" class="popup-message" style="display: none;">
+      <!-- Bu içerik dil değiştirilirken güncellenecektir -->
+    </div>
   </div>
  
   <!-- Sıfırla Butonu -->
@@ -429,7 +451,7 @@ Ağırlık Kalibrasyonu:
         "btnMekanik": "Mekanik Kontrol",
         "btnBant": "Bant Kalibrasyonu",
         "mekanikKontrolText": "1-Tartım ruloları (ayar rulosu, önceki ve sonraki rulo) diğer rulolardan 1mm yüksek ve 3 rulo aynı düzlemde olacak şekilde ayarlanmalıdır.\n\n2-Bıçaklar (lamalar) gözle kontrol edilmelidir. Kırık çatlak olmamalı ve birbirine temas etmemelidir.\n\n3-Gerekli kontroller ve ayar yapıldıktan sonra kalibrasyona geçilmelidir.\n\n>KOLAY GELSIN<",
-        "bantKalibrasyonText": "Zero Ayarı:\n1-MENU->SCALE->ANALOG LD. CL. Sekmesinde CAL WGT (Kalibrasyon Ağırlığı) 5kg, CAL. LEV. RAT. (Ağırlık Çarpanı) 1.5 olarak girilmelidir.\n\n2-Bant boş iken NULL PT. (Zero) ayarı yapılır.\n\n3-Sonra kalibrasyon ağırlıkları (5kg) tartım rulosu alt kollara asılarak CALIBRATION (Span) ayarı yapılır.\n\n4-Analog Load Cell kalibrasyonu tamamlandığında; MENU->NEW MATERIAL->STATIC TARE seçilerek banta zero ayarı yapılır.\n\n5-Zero ayarından sonra; MENU->SCALE->MAIN DECK->NET WEIGHT kısmı açılır. Loadcell kalibrasyon ağırlıkları tekrar kollara asılarak burada 7,5 kg görülmelidir. (5kg x 1.5) (Bu değer görünene kadar yukarıdaki işlemlere devam edilir. Sonuç alınamazsa Loadcell kontrolü (mV) yapılır.)\n\n6-Bu işlemler tamamlandığında bant otomatiğe alınır. SETPOINT değeri max set pointin yarısı kadar girilir. (ÖRN: CV106 max set point 20 t/h ise, set point 10 t/h girilir)\n!!VOL/GRAV seçeneği GRAV olmalıdır!!\n\nMENU->NEW MATERIAL->BELT TARE seçilerek \"Belt Tare Ok\" ekranda görünene kadar beklenir. (MF hataları varsa, bant devreden çıkarsa set değeri arttırılıp/azaltılarak tekrar denenir)\n\nAğırlık Kalibrasyonu:\n1-Rulo Ağırlık: 34,3 kg.  Metreye düşen ağırlık: 24,8 kg.\n\n2-Zero ayarı tamamlandıktan sonra yeni yapılan Rulo Ağırlık // zincir banta koyulur.\n\n3-Bant otomatiğe alınır. !!VOL/GRAV seçeneği VOL olmalıdır!!\n\n4-SETPOINT değeri max set pointin yarısı kadar girilir. (ör: CV117 max set point: 20 t/h ise, 10 t/h girilir.)\n\n5-Hasler ekranında TOTAL sıfırlanır ve bant otomatik devreye alınır.\n\n6-Çalışma esnasında Hasler ekranındaki MF değeri takip edilerek ortalaması alınır.\n\n7-Min. 10 dk takip sonrası bant durdurulur.\n\n>KOLAY GELSIN<",
+        "bantKalibrasyonText": "Zero Ayarı:\n1-MENU->SCALE->ANALOG LD. CL. Sekmesinde CAL WGT (Kalibrasyon Ağırlığı) 5kg, CAL. LEV. RAT. (Ağırlık Çarpanı) 1.5 olarak girilmelidir.\n\n2-Bant boş iken NULL PT. (Zero) ayarı yapılır.\n\n3-Sonra kalibrasyon ağırlıkları (5kg) tartım rulosu alt kollara asılarak CALIBRATION (Span) ayarı yapılır.\n\n4-Analog Load Cell kalibrasyonu tamamlandığında; MENU->NEW MATERIAL->STATIC TARE seçilerek banta zero ayarı yapılır.\n\n5-Zero ayarından sonra; MENU->SCALE->MAIN DECK->NET WEIGHT kısmı açılır. Loadcell kalibrasyon ağırlıkları tekrar kollara asılarak burada 7,5 kg görülmelidir. (5kg x 1.5) (Bu değer görünene kadar yukarıdaki işlemlere devam edilir. Sonuç alınamazsa Loadcell kontrolü (mV) yapılır.)\n\n6-Bu işlemler tamamlandığında bant otomatiğe alınır. SETPOINT değeri max set pointin yarısı kadar girilir. (ÖRN: CV106 max set point 20 t/h ise, set point 10 t/h girilir)\n!!VOL/GRAV seçeneği GRAV olmalıdır!!\n\nMENU->NEW MATERIAL->BELT TARE seçilerek \"Belt Tare Ok\" ekranda görünene kadar beklenir. (MF hataları varsa, bant devreden çıkarsa set değeri arttırılıp/azaltılarak tekrar denenir)\n\nAğırlık Kalibrasyonu:\n1-Rulo Ağırlık: 34,3 kg.  Metreye düşen ağırlık: 24,8 kg.\n\n2-Zero ayarı tamamlandıktan sonra yeni yapılan Rulo Ağırlık // zincir banta koyulur.\n\n3-Bant otomatiğe alınır. !!VOL/GRAV seçeneği VOL olmalıdır!!\n\n4-SETPOINT değeri max set pointin yarısı kadar girilir. (ör: CV117 max set point: 20 t/h ise, 10 t/h girilir.)\n\n5-Hasler ekranında TOTAL sıfırlanır ve bant otomatik devreye alınır.\n\n6-Çalışma esnasında Hasler ekranındaki MF değeri takip edilerek ortalaması alınır.\n\n7-Min. 10 dk takip sonrası bant durdurulur.\n\n>KOLAY GELSIN<", 
         "labelA": "A=Hasler sistemi üzerindeki bant hızını giriniz (m/s):",
         "labelB": "B=Zincir ağırlığınızı giriniz (İgsaş Zincir = 24.8 kg/m):",
         "labelC": "C=Kalibrasyon süresini giriniz (dakika):",
@@ -442,7 +464,9 @@ Ağırlık Kalibrasyonu:
         "startTimer": "Kronometre Başlat",
         "stopTimer": "Durdur",
         "resume": "Devam Ettir",
-        "modalClose": "Kapat"
+        "modalClose": "Kapat",
+        "spanPopupMessage": "Yeni Span = Sonuç Span x Eski Span -> Bu işlemi yapmayı unutma! Çıkan yeni Span değerini sisteme girip tekrar 10 dakika kalibrasyon yapılmalı.",
+        "totalCalculatedWeight": "Total Hesaplanan Kilo"
       },
       "en": {
         "pageTitle": "İgsaş Belt Calibration Program - New Version",
@@ -463,7 +487,9 @@ Ağırlık Kalibrasyonu:
         "startTimer": "Start Timer",
         "stopTimer": "Stop",
         "resume": "Resume",
-        "modalClose": "Close"
+        "modalClose": "Close",
+        "spanPopupMessage": "New Span = Result Span x Old Span -> Don't forget to do this! Enter the new Span value into the system and recalibrate for 10 minutes.",
+        "totalCalculatedWeight": "Total Calculated Weight"
       }
     };
 
@@ -513,6 +539,9 @@ Ağırlık Kalibrasyonu:
 
       // Modal butonu
       document.getElementById("btnModalClose").innerText = trans.modalClose;
+      
+      // Pop-up mesajı çevirisi
+      document.getElementById("spanPopup").innerText = trans.spanPopupMessage;
     }
 
     // Sayfa yüklendiğinde varsayılan dili ayarla
